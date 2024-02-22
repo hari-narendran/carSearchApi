@@ -2,8 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('./db');
 const CarMake = require('./carMakeModel');
+// const CarTrip = require('./carTripModel')
+const CarTrips = require('./carTripsModel')
+const bodyParser = require('body-parser');  
+
 const app = express();
 const port = 3000;
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(cors({ origin: 'http://localhost:4200' }));
 
 //const { MongoClient, ServerApiVersion } = require('mongodb');
 /* const mongoose = require('mongoose');
@@ -21,7 +28,7 @@ mongoose
   .catch((err) => console.log(err)); */
 
 // app.use(cors())
-app.use(cors({ origin: 'http://localhost:4200' }));
+
 
 const carMakes_ = [
   'Abarth',
@@ -116,13 +123,25 @@ app.get('/search', async (req, res) => {
   res.json(carMakeMatches);
 });
 
-/* app.get('/search', (req, res) => {
+app.get('/search', (req, res) => {
   const searchQuery = req.query.q.toLowerCase();
   const carMakeMatches = carMakes_.filter((carmake) =>
     carmake.toLowerCase().includes(searchQuery)
   );
   res.json(carMakeMatches);
-}); */
+});
+
+app.post('/saveTrips', async (req, res) => {
+  try {
+    // Use insertMany for efficient bulk insertion
+    const savedTrips = await CarTrips.create(req.body);
+
+    res.status(201).json({ message: 'Trips saved successfully!', data: savedTrips });
+  } catch (error) {
+    console.error('Error saving trips:', error);
+    res.status(500).json({ message: 'Error saving trips' });
+  }
+});
 
 app.listen(port, () =>
   console.log(`Server listening at http://localhost:${port}`)
