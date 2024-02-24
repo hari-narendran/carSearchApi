@@ -3,13 +3,13 @@ const cors = require('cors');
 const mongoose = require('./db');
 const CarMake = require('./carMakeModel');
 // const CarTrip = require('./carTripModel')
-const CarTrips = require('./carTripsModel')
-const bodyParser = require('body-parser');  
+const CarTrips = require('./carTripsModel');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3000;
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({ origin: 'http://localhost:4200' }));
 
 //const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -28,7 +28,6 @@ mongoose
   .catch((err) => console.log(err)); */
 
 // app.use(cors())
-
 
 const carMakes_ = [
   'Abarth',
@@ -97,17 +96,15 @@ const carMakes_ = [
   'Volvo',
 ];
 
-
-
 // Example of fetching all car makes
 app.get('/carmakes', async (req, res) => {
   try {
     const carMakes = await CarMake.find();
-    console.log(carMakes)
+    console.log(carMakes);
     res.json(carMakes);
   } catch (error) {
-    console.error("Error fetching car makes:", error);
-    res.status(500).send("Error retrieving car makes");
+    console.error('Error fetching car makes:', error);
+    res.status(500).send('Error retrieving car makes');
   }
 });
 
@@ -116,7 +113,7 @@ app.get('/', (req, res) => res.send('Hello Node'));
 app.get('/search', async (req, res) => {
   const carMakes = await CarMake.find();
   const searchQuery = req.query.q.toLowerCase();
-  console.log(searchQuery)
+  console.log(searchQuery);
   const carMakeMatches = carMakes.filter((carmake) =>
     carmake.name.toLowerCase().includes(searchQuery)
   );
@@ -136,10 +133,30 @@ app.post('/saveTrips', async (req, res) => {
     // Use insertMany for efficient bulk insertion
     const savedTrips = await CarTrips.create(req.body);
 
-    res.status(201).json({ message: 'Trips saved successfully!', data: savedTrips });
+    res
+      .status(201)
+      .json({ message: 'Trips saved successfully!', data: savedTrips });
   } catch (error) {
     console.error('Error saving trips:', error);
     res.status(500).json({ message: 'Error saving trips' });
+  }
+});
+
+app.get('/getAllTrips', async (req, res) => {
+  const carTrips = await CarTrips.find();
+  res.json(carTrips);
+});
+
+app.post('/deleteTrip', async (req, res) => {
+  console.log(req.body);
+  try {
+    const deletedTRip = await CarTrips.deleteOne({ _id: req.body._id });
+    res
+      .status(201)
+      .json({ message: 'Trip deleted successfully!', data: deletedTRip });
+  } catch (error) {
+    console.log('Error deleting trip', error);
+    res.status(500).json({ message: 'Error deleting trip' });
   }
 });
 
